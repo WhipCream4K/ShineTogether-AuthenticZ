@@ -39,9 +39,6 @@ local function equipLocation(player,item,location,onItemDepleteCallback)
 			local pointLight = PlayerPointLight.create(glowstickColor.r, glowstickColor.g, glowstickColor.b,TorhFixAZ_utils.getGlowRadius())
 			pointLight:setActive(true)
 
-			-- playerModData.pointLights = playerModData.pointLights or {}
-			-- playerModData.pointLights[itemID] = pointLight
-
             Manager.attachLightToItem(item,pointLight)
 
 			local glowstick =
@@ -51,26 +48,12 @@ local function equipLocation(player,item,location,onItemDepleteCallback)
 			}
 
             Manager.addActiveGlowstick(itemID,glowstick)
-			-- playerModData.activeGlowsticks = playerModData.activeGlowsticks or {}
-			-- playerModData.activeGlowsticks[itemID] = glowstick
 		end
 	else if item == nil and handItem ~= nil then
 
-			-- local item = playerModData[location]
-			-- local itemID = item:getID()
-			-- local pointLight = playerModData.pointLights[itemID]
-			-- PlayerPointLight.remove(pointLight)
-
             local glowstick = Manager.getActiveGlowstickByID(handItem:getID())
             glowstick.onItemDepleted(player,handItem)
-        
-			-- playerModData.pointLights = playerModData.pointLights or {}
-			-- playerModData.pointLights[itemID] = nil
 
-			-- playerModData.activeGlowsticks = playerModData.activeGlowsticks or {}
-			-- playerModData.activeGlowsticks[itemID] = nil
-
-			-- playerModData[location] = nil
 		end
 	end
 
@@ -102,14 +85,6 @@ Manager.onClothingUpdated = function (player)
 		end
 	end
 
-	-- local playerModData = getPlayerModData(player)
-
-	-- playerModData.activeGlowsticks = playerModData.activeGlowsticks or {}
-	-- playerModData.pointLights = playerModData.pointLights or {}
-	-- playerModData.attachedItems = playerModData.attachedItems or {}
-
-
-	-- local pointLights = playerModData.pointLights
 	local activeGlowsticks = Manager.getActiveGlowsticks()
 	local attachedGlowsticks = Manager.getAttachedGlowsticks()
 
@@ -129,7 +104,6 @@ Manager.onClothingUpdated = function (player)
 			pointLight:setActive(true)
             Manager.attachLightToItem(currentItem,pointLight)
 
-			-- pointLights[itemID] = pointLight
 
 
 			local glowstick =
@@ -140,24 +114,10 @@ Manager.onClothingUpdated = function (player)
                     Manager.removeLightByItemID(itemID)
                     Manager.removeActiveGlowstick(itemID)
 
-					-- local itemID = item:getID()
-					-- local playerModData = getPlayerModData(player)
-					-- local pointLights = playerModData.pointLights
-					-- local activeGlowsticks = playerModData.activeGlowsticks
-					-- local attachedItems = playerModData.attachedItems
-
-					-- attachedItems[itemID] = nil
-					-- activeGlowsticks[itemID] = nil
-					
-					-- local pointLight = pointLights[itemID]
-					-- PlayerPointLight.remove(pointLight)
-					-- pointLights[itemID] = nil
-
 				end,
 				item = currentItem
 			}
 	
-			-- activeGlowsticks[itemID] = glowstick
             Manager.addActiveGlowstick(itemID,glowstick)
             Manager.addAttachedGlowstick(itemID,glowstick)
 		end
