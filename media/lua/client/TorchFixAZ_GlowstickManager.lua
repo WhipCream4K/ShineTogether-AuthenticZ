@@ -30,7 +30,6 @@ local function equipLocation(player,item,location,onItemDepleteCallback)
 		if item ~= nil and TorhFixAZ_utils.isActivatedGlowstick(item) then
 
 			local itemID = item:getID()
-			-- playerModData[location] = item
 
             Manager.setHandItem(location,item)
 
@@ -60,13 +59,13 @@ local function equipLocation(player,item,location,onItemDepleteCallback)
 end
 
 Manager.onEquipPrimary = function (player,item)
-    
+    if not instanceof(player, "IsoPlayer") then return end
     if not player:isLocalPlayer() then return end
     equipLocation(player,item,"Primary",primaryOnItemDepleted)
 end
 
 Manager.onEquipSecondary = function (player,item)
-    
+    if not instanceof(player, "IsoPlayer") then return end
     if not player:isLocalPlayer() then return end
     equipLocation(player,item,"Secondary",secondaryOnItemDepleted)
 
@@ -90,7 +89,7 @@ Manager.onClothingUpdated = function (player)
 
 	for itemID, glowstick in pairs(attachedGlowsticks) do
 		if currentAttachedItems[itemID] == nil then
-			-- Remove if exists
+			-- Remove if not exists
 			glowstick.onItemDepleted(player,glowstick.item)
 		end
 	end
@@ -119,15 +118,15 @@ Manager.onClothingUpdated = function (player)
 			}
 	
             Manager.addActiveGlowstick(itemID,glowstick)
-            Manager.addAttachedGlowstick(itemID,glowstick)
 		end
+
+        Manager.addAttachedGlowstick(itemID,activeGlowsticks[itemID])
 	end
 
 end
 
 Manager.onPlayerUpdate = function (player)
     
-	-- local playerModData = getPlayerModData(player)
 	local activeGlowsticks = Manager.getActiveGlowsticks()
 
 	if activeGlowsticks == nil then return end

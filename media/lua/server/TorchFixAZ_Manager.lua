@@ -10,6 +10,7 @@ TorhFixAZ_Manager = {}
 -- This value has been tested to be at 120 ticks per minute in game time
 -- although it might varied depending on the game's performance
 TorhFixAZ_Manager.TickCountPerMinute = 120
+TorhFixAZ_Manager.SpawnModule = nil
 
 TorhFixAZ_Manager.Epsilon = 1e-5
 
@@ -44,22 +45,30 @@ local function removeWorldActiveGlowstick(x,y,z,worldItemGlowstick)
 
     -- add blank glowstick to square
     -- TODO: Maybe change the blank glowstick string to compensate for the mod's name
-    local blankGlowstick = InventoryItemFactory.CreateItem("AuthenticZLite.AuthenticGlowstick_Blank")
 
-    local itemWorldPosX = worldItemGlowstick:getWorldPosX()
-    local itemWorldPosY = worldItemGlowstick:getWorldPosY()
-    local itemWorldPosZ = worldItemGlowstick:getWorldPosZ()
+    if TorhFixAZ_Manager.SpawnModule == nil then
+        print("ERROR !!! Authentic Z - Lite or Authentic Z - Current not detected. Glowstick will not be replaced by blank glowstick if depleted.")
+        return
+    end
 
-    local xOff = itemWorldPosX - x
-    local yOff = itemWorldPosY - y
-    local zOff = itemWorldPosZ - z
+    local blankGlowstick = InventoryItemFactory.CreateItem(TorhFixAZ_Manager.SpawnModule .. ".AuthenticGlowstick_Blank")
 
-    square:AddWorldInventoryItem(blankGlowstick, xOff, yOff, zOff)
-
-    -- remove from square
-    square:transmitRemoveItemFromSquareOnServer(worldItemGlowstick)
-    square:removeWorldObject(worldItemGlowstick)
-    glowstickItem:setWorldItem(nil)
+    if blankGlowstick ~= nil then
+        local itemWorldPosX = worldItemGlowstick:getWorldPosX()
+        local itemWorldPosY = worldItemGlowstick:getWorldPosY()
+        local itemWorldPosZ = worldItemGlowstick:getWorldPosZ()
+    
+        local xOff = itemWorldPosX - x
+        local yOff = itemWorldPosY - y
+        local zOff = itemWorldPosZ - z
+    
+        square:AddWorldInventoryItem(blankGlowstick, xOff, yOff, zOff)
+    
+        -- remove from square
+        square:transmitRemoveItemFromSquareOnServer(worldItemGlowstick)
+        square:removeWorldObject(worldItemGlowstick)
+        glowstickItem:setWorldItem(nil)
+    end
 
 end
 
@@ -260,7 +269,41 @@ TorhFixAZ_Manager.onOneMinute = function ()
 
 end
 
+local function onServerStarted(isNewGame)
+    
+    TorhFixAZ_Manager.SpawnModule = nil
+
+    print("--------------------TorchFixAZ_Manager.lua--------------------")
+
+    local activeMods = getActivatedMods()
+    -- check if we got Authentic Z - Current or Authentic Z - Lite
+    for i=0, activeMods:size()-1 do
+        local modID = activeMods:get(i)
+        if string.find(modID, "Authentic Z") then
+            if string.find(modID, "Lite") then
+                print("Authentic Z - Lite detected.")
+                TorhFixAZ_Manager.SpawnModule = "AuthenticZLite"
+            else 
+                print("Authentic Z - Current detected.")
+                TorhFixAZ_Manager.SpawnModule = "AuthenticZClothing"
+            end
+            break
+        end
+    end
+
+    if TorhFixAZ_Manager.SpawnModule == nil then
+        print("ERROR !!! Authentic Z - Lite or Authentic Z - Current not detected. Glowstick will not be replaced by blank glowstick if depleted.")
+        return
+    end
+
+
+    print("-----------------------------------------------------------------------")
+
+end
+
 Events.EveryOneMinute.Add(TorhFixAZ_Manager.onOneMinute)
 Events.LoadGridsquare.Add(TorhFixAZ_Manager.onLoadGridsquare)
+Events.OnInitGlobalModData.Add(onServerStarted)
+
 
 return TorhFixAZ_Manager
